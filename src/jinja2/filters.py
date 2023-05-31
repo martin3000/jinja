@@ -51,12 +51,14 @@ def ignore_case(value: V) -> V:
 
     return value
 
-def atoi(value):
+def atof(value):
     """For use as a postprocessor for :func:`make_attrgetter`. Converts strings
-    to numbers and returns other types as-is. As I did not understand the sense of the t.cast, I removed it. """
+    to numbers and returns other types as-is."""
     if isinstance(value, str):
-        return int(value)
-
+        try:
+            return float(value)
+        except:
+            return 0.0
     return value
 
 
@@ -424,7 +426,7 @@ def do_sort(
        The ``numbers`` parameter was added
     """
     key_func = make_multi_attrgetter(
-        environment, attribute, postprocess=atoi if numbers else ignore_case if not case_sensitive else None
+        environment, attribute, postprocess=atof if numbers else ignore_case if not case_sensitive else None
     )
     return sorted(value, key=key_func, reverse=reverse)
 
