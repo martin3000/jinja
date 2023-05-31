@@ -51,6 +51,14 @@ def ignore_case(value: V) -> V:
 
     return value
 
+def atoi(value):
+    """For use as a postprocessor for :func:`make_attrgetter`. Converts strings
+    to numbers and returns other types as-is. As I did not understand the sense of the t.cast, I removed it. """
+    if isinstance(value, str):
+        return int(value)
+
+    return value
+
 
 def make_attrgetter(
     environment: "Environment",
@@ -360,6 +368,7 @@ def do_sort(
     reverse: bool = False,
     case_sensitive: bool = False,
     attribute: t.Optional[t.Union[str, int]] = None,
+    numbers: bool = False,
 ) -> "t.List[V]":
     """Sort an iterable using Python's :func:`sorted`.
 
@@ -396,15 +405,26 @@ def do_sort(
             ...
         {% endfor %}
 
+    If you want to force numbers in strins to be sorted as numbers:
+
+    .. sourcecode:: jinja
+
+        {% for user in users|sort(attribute="age",numbers=True) %}
+            ...
+        {% endfor %}
+
     .. versionchanged:: 2.11.0
         The ``attribute`` parameter can be a comma separated list of
         attributes, e.g. ``"age,name"``.
 
     .. versionchanged:: 2.6
        The ``attribute`` parameter was added.
+       
+     -- versionchanged::
+       The ``numbers`` parameter was added
     """
     key_func = make_multi_attrgetter(
-        environment, attribute, postprocess=ignore_case if not case_sensitive else None
+        environment, attribute, postprocess=atoi if numbers else ignore_case if not case_sensitive else None
     )
     return sorted(value, key=key_func, reverse=reverse)
 
